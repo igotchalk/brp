@@ -1,0 +1,4 @@
+#Don't add these folders:
+DIGITIZER/
+reading/
+data/elogs/
