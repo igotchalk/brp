@@ -2,3 +2,6 @@
 DIGITIZER/
 reading/
 data/elogs/
+
+#File types
+*.zip
