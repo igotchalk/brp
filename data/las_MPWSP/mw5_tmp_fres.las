@@ -71,8 +71,8 @@
 #MNEM .UNIT           VALUE  : DESCRIPTION                    
  DEPT  .F                     : Depth                          
  FRES  .OHMM                  : Fluid Resistivity              
- TEMP  .DEGF                  : Temperature                    
-~ASCII  DEPT FRES TEMP
+ TMP  .DEGF                   : Temperature                    
+~ASCII  DEPT FRES TMP
  74.0 6.98 63.081
  74.5 6.975 62.923
  75.0 6.969 62.9
