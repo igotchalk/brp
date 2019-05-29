@@ -2,8 +2,8 @@
 DIGITIZER/
 reading/
 data/elogs/
-data/paper/
-
-
+paper/
+work/figs/
+ 
 #File types
 *.zip
