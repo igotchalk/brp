@@ -1,9 +1,9 @@
 #Don't add these folders:
 DIGITIZER/
-reading/
-data/elogs/
-paper/
-work/figs/
+reading/*
+data/elogs/*
+paper/*
+work/figs/*
  
 #File types
 *.zip
