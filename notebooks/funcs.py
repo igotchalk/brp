@@ -113,13 +113,16 @@ def concat_dfs(dfs):
 def update_df2(df):
     return df.reset_index().rename(columns={"level_0": "Well"})
 
-def update_FBS(df,TDS_col,breaks=[0,3000,10000]):
+def update_FBS(df,TDS_col,breaks=[0,3000,10000],return_vec=False):
     FBS = np.zeros(len(df))
     FBS[df.loc[:,TDS_col].isna()] = np.nan
     breaks = np.r_[breaks,1e10]
     for i in range(len(breaks[:-1])):
         FBS[np.logical_and(df.loc[:,TDS_col] > breaks[i], df.loc[:,TDS_col] < breaks[i+1])] = i
-    return df.assign(FBS=FBS)
+    if return_vec:
+        return FBS
+    else:
+        return df.assign(FBS=FBS)
 
 def bin_wiggle(vec,binsize=.1):
     return np.random.uniform(vec-binsize/2,vec+binsize/2)
