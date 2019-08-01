@@ -14,6 +14,7 @@ import seaborn as sns
 import matplotlib.cm as cm
 import pickle
 from scipy import interpolate
+from scipy import stats
 
 
 def load_obj(dirname,name):
@@ -113,12 +114,12 @@ def concat_dfs(dfs):
 def update_df2(df):
     return df.reset_index().rename(columns={"level_0": "Well"})
 
-def update_FBS(df,TDS_col,breaks=[0,3000,10000],return_vec=False):
-    FBS = np.zeros(len(df))
+def update_FBS(df,TDS_col,breaks= [0,1000,3000,10000,100000],return_vec=False):
+    FBS = 10*np.ones(len(df))
     FBS[df.loc[:,TDS_col].isna()] = np.nan
     breaks = np.r_[breaks,1e10]
     for i in range(len(breaks[:-1])):
-        FBS[np.logical_and(df.loc[:,TDS_col] > breaks[i], df.loc[:,TDS_col] < breaks[i+1])] = i
+        FBS[np.logical_and(df.loc[:,TDS_col] >= breaks[i], df.loc[:,TDS_col] < breaks[i+1])] = i
     if return_vec:
         return FBS
     else:
@@ -134,6 +135,50 @@ def inverse_transform_sampling(data, n_bins=40, n_samples=100):
     inv_cdf = interpolate.interp1d(cum_values, bin_edges)
     r = np.random.rand(n_samples)
     return inv_cdf(r)
+
+def rmse(true,pred):
+    return np.sqrt(np.mean((true-pred)**2))
+
+def x_y_regression(xin,yin,cin,ax=None,msk=None,plotslp=True,returnslope=False,errtype='normpct',slpname='F',kdeplot=False,plotone2one=False,**kwargs):
+    if msk is None:
+        x=xin
+        y=yin
+        c=cin
+    else:
+        x=xin[msk]
+        y=yin[msk]
+        c=cin[msk]
+    slope, intercept, r_value, p_value, std_err = stats.linregress(x,y)
+    plt.set_cmap('viridis_r')
+    if ax is None:
+        f,ax = plt.subplots(1,figsize=(5,4))
+    else:
+        f = plt.gcf()
+    if kdeplot:
+        sns.kdeplot(x,y)
+    plt.scatter(x,y,c=c,**kwargs)
+    if errtype=='normpct':
+        err = np.round(np.linalg.norm(x-y)/np.linalg.norm(y)*100,1)
+    elif errtype=='RMSE':
+        err = rmse(y,x)
+    if plotone2one:
+        l,r = plt.xlim()
+#         one2one = np.linspace(x.min(),x.max())
+        one2one = np.linspace(l,r)
+        plt.plot(one2one,one2one,'k',label='y=x')
+    if plotslp:
+        plt.plot(x,slope*x + intercept,':k',label='$L_{2}$ best fit')
+        plt.text(0.05,.875,'{} = {:.2f} \n{} = {:.2f}'
+                 .format(slpname,slope,errtype,err),transform=ax.transAxes)
+    else:
+        plt.text(0.05,.95,'{} = {:.2f}'
+                 .format(errtype, err),transform=ax.transAxes)
+    if returnslope:
+        return f,ax,slope,intercept
+    else:
+        return f,ax
+
+
 
 # mask_noclay = np.logical_or(df.loc[:,'lith'].str.contains("C"),df.loc[:,'lith'].isna())
 nan_cols = ['FRES','lith','RILD']
